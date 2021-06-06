@@ -1,0 +1,14 @@
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Run gh-gomod-generate-sbom Action
+        uses: ./
+        with:
+          version: v0.8.1
+          
