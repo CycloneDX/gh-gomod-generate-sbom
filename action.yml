@@ -1,6 +1,6 @@
 name: CycloneDX GoMod Generate SBOM
 author: Niklas Düster
-description: Github action to generate a CycloneDX BOM for Go modules
+description: Github action to generate a CycloneDX SBOM for Go modules
 inputs:
   include-stdlib:
     description: Include Go standard library as component and dependency of the module
