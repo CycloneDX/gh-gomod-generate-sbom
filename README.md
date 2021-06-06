@@ -50,12 +50,6 @@ Type of the main component. Default `'application'`.
 
 **Required** The version of cyclonedx-gomod to use.
 
-## Outputs
-
-### `time`
-
-The time we greeted you.
-
 ## Example usage
 
 ```yaml
