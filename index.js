@@ -22,9 +22,17 @@ const path = require('path');
 const toolCache = require('@actions/tool-cache');
 
 const input = {
-    version: core.getInput('version') || 'latest',
+    includeStdLib: core.getBooleanInput('include-stdlib'),
+    includeTest: core.getBooleanInput('include-test'),
+    json: core.getBooleanInput('json'),
+    module: core.getInput('module'),
+    omitSerialNumber: core.getBooleanInput('omit-serial-number'),
+    omitVersionPrefix: core.getBooleanInput('omit-version-prefix'),
     output: core.getInput('output'),
-    useJson: core.getBooleanInput('json')
+    reproducible: core.getBooleanInput('reproducible'),
+    resolveLicenses: core.getBooleanInput('resolve-licenses'),
+    type: core.getInput('type') || 'application',
+    version: core.getInput('version') || 'latest',
 };
 
 const baseDownloadUrl = 'https://github.com/CycloneDX/cyclonedx-gomod/releases/download';
@@ -33,13 +41,13 @@ function buildDownloadUrl(version) {
     let fileExtension = "tar.gz";
 
     let platform = os.platform().toString();
-    if (platform == 'win32') {
+    if (platform === 'win32') {
         platform = 'windows';
         fileExtension = 'zip';
     }
 
     let architecture = os.arch()
-    if (architecture == 'ia32' || architecture == 'x32') {
+    if (architecture === 'ia32' || architecture === 'x32') {
         architecture = 'x86';
     }
 
@@ -67,8 +75,34 @@ async function install(version) {
 async function run() {
     try {
         const binaryPath = await install(input.version.replace(/^v/, ''));
-        core.info(`Successfully installed to ${binaryPath}`);
-        exec.exec(binaryPath, ['-version']);
+        
+        let args = ['-output', input.output, '-type', input.type, ];
+        if (input.includeStdLib) {
+            args.push('-std');
+        }
+        if (input.includeTest) {
+            args.push('-test');
+        }
+        if (input.json) {
+            args.push('-json');
+        }
+        if (input.module !== '') {
+            args.push('-module', input.module);
+        }
+        if (input.omitSerialNumber) {
+            args.push('-noserial');
+        }
+        if (input.omitVersionPrefix) {
+            args.push('-novprefix');
+        }
+        if (input.reproducible) {
+            args.push('-reproducible');
+        }
+        if (input.resolveLicenses) {
+            args.push('-licenses');
+        }
+
+        exec.exec(binaryPath, args);
     } catch (error) {
         core.setFailed(error.message);
     }
