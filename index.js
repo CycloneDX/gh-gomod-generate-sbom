@@ -17,6 +17,7 @@
 
 const core = require('@actions/core');
 const exec = require('@actions/exec');
+const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const toolCache = require('@actions/tool-cache');
@@ -32,7 +33,7 @@ const input = {
     reproducible: core.getBooleanInput('reproducible'),
     resolveLicenses: core.getBooleanInput('resolve-licenses'),
     type: core.getInput('type') || 'application',
-    version: core.getInput('version') || 'latest',
+    version: core.getInput('version'),
 };
 
 const baseDownloadUrl = 'https://github.com/CycloneDX/cyclonedx-gomod/releases/download';
@@ -103,6 +104,9 @@ async function run() {
         }
 
         await exec.exec(binaryPath, args);
+
+        const sbomContent = await fs.readFile(input.output);
+        core.info(`SBOM contents:\n${sbomContent.toString('utf-8')}`);
     } catch (error) {
         core.setFailed(error.message);
     }
