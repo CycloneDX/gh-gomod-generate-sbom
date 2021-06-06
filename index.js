@@ -21,6 +21,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const toolCache = require('@actions/tool-cache');
+const util = require('util');
 
 const input = {
     includeStdLib: core.getBooleanInput('include-stdlib'),
@@ -106,7 +107,8 @@ async function run() {
         await exec.exec(binaryPath, args);
 
         if (input.output !== '-') {
-            const sbomContent = await fs.readFile(input.output);
+            const readFile = util.promisify(fs.readFile);
+            const sbomContent = await readFile(input.output);
             core.info(`SBOM contents:\n${sbomContent.toString('utf-8')}`);
         }
     } catch (error) {
