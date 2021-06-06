@@ -64,10 +64,14 @@ async function install(version) {
     return path.join(installDir, 'cyclonedx-gomod');
 }
 
-try {
-    const binaryPath = await install(input.version);
-    core.info(`Successfully installed to ${binaryPath}`);
-    exec.exec(binaryPath, ['-version']);
-} catch (error) {
-    core.setFailed(error.message);
+async function run() {
+    try {
+        const binaryPath = await install(input.version);
+        core.info(`Successfully installed to ${binaryPath}`);
+        exec.exec(binaryPath, ['-version']);
+    } catch (error) {
+        core.setFailed(error.message);
+    }
 }
+
+run();
