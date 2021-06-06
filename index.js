@@ -109,7 +109,7 @@ async function run() {
         if (input.output !== '-') {
             const readFile = util.promisify(fs.readFile);
             const sbomContent = await readFile(input.output);
-            core.info(`SBOM contents:\n${sbomContent.toString('utf-8')}`);
+            core.info(`SBOM content:\n${sbomContent.toString('utf-8')}`);
         }
     } catch (error) {
         core.setFailed(error.message);
