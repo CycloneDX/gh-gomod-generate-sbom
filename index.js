@@ -29,7 +29,7 @@ const input = {
     module: core.getInput('module'),
     omitSerialNumber: core.getBooleanInput('omit-serial-number'),
     omitVersionPrefix: core.getBooleanInput('omit-version-prefix'),
-    output: core.getInput('output'),
+    output: core.getInput('output') || '-',
     reproducible: core.getBooleanInput('reproducible'),
     resolveLicenses: core.getBooleanInput('resolve-licenses'),
     type: core.getInput('type') || 'application',
@@ -105,8 +105,10 @@ async function run() {
 
         await exec.exec(binaryPath, args);
 
-        const sbomContent = await fs.readFile(input.output);
-        core.info(`SBOM contents:\n${sbomContent.toString('utf-8')}`);
+        if (input.output !== '-') {
+            const sbomContent = await fs.readFile(input.output);
+            core.info(`SBOM contents:\n${sbomContent.toString('utf-8')}`);
+        }
     } catch (error) {
         core.setFailed(error.message);
     }

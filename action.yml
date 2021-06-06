@@ -28,7 +28,7 @@ inputs:
     required: false
   output:
     description: Output path
-    default: ./bom.xml
+    default: '-'
     required: false
   reproducible:
     description: Make the SBOM reproducible by omitting dynamic content
