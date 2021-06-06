@@ -102,7 +102,7 @@ async function run() {
             args.push('-licenses');
         }
 
-        exec.exec(binaryPath, args);
+        await exec.exec(binaryPath, args);
     } catch (error) {
         core.setFailed(error.message);
     }
