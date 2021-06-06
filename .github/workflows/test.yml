@@ -10,5 +10,5 @@ jobs:
       - name: Run gh-gomod-generate-sbom Action
         uses: ./
         with:
-          version: v0.8.1
+          version: '0.8.1'
           

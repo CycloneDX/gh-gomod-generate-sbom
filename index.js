@@ -43,7 +43,7 @@ function buildDownloadUrl(version) {
         architecture = 'x86';
     }
 
-    return `${baseDownloadUrl}/${version}/cyclonedx-gomod_${version}_${platform}_${architecture}.${fileExtension}`;
+    return `${baseDownloadUrl}/v${version}/cyclonedx-gomod_${version}_${platform}_${architecture}.${fileExtension}`;
 }
 
 async function install(version) {
@@ -66,7 +66,7 @@ async function install(version) {
 
 async function run() {
     try {
-        const binaryPath = await install(input.version);
+        const binaryPath = await install(input.version.replace(/^v/, ''));
         core.info(`Successfully installed to ${binaryPath}`);
         exec.exec(binaryPath, ['-version']);
     } catch (error) {
