@@ -55,16 +55,16 @@ Type of the main component. Default `'application'`.
 ```yaml
 - name: Generate SBOM JSON
   uses: CycloneDX/gh-gomod-generate-sbom@main
-    with:
-      json: true
-      output: bom.json
-      resolve-licenses: true
-      version: 0.8.1
+  with:
+    json: true
+    output: bom.json
+    resolve-licenses: true
+    version: 0.8.1
 
 - name: Generate SBOM XML
   uses: CycloneDX/gh-gomod-generate-sbom@main
-    with:
-      output: bom.xml
-      resolve-licenses: true
-      version: 0.8.1
+  with:
+    output: bom.xml
+    resolve-licenses: true
+    version: 0.8.1
 ```
