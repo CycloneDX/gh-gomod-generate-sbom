@@ -59,10 +59,12 @@ function buildDownloadUrl(version) {
 }
 
 async function getLatestReleaseVersion(httpClient) {
+    core.info('Determining latest release version of cyclonedx-gomod');
     const releaseJson = await httpClient.getJson('https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases/latest');
     if (releaseJson === null) {
         throw 'Fetching latest release of cyclonedx-gomod failed: not found';
     }
+    core.info(JSON.stringify(releaseJson));
     return releaseJson.tag_name;
 }
 
