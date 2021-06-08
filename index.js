@@ -18,6 +18,8 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 const fs = require('fs');
+const http = require('@actions/http-client');
+const io = require('@actions/io');
 const os = require('os');
 const path = require('path');
 const toolCache = require('@actions/tool-cache');
@@ -56,6 +58,14 @@ function buildDownloadUrl(version) {
     return `${baseDownloadUrl}/v${version}/cyclonedx-gomod_${version}_${platform}_${architecture}.${fileExtension}`;
 }
 
+async function getLatestReleaseVersion(httpClient) {
+    const releaseJson = await httpClient.getJson('https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases/latest');
+    if (releaseJson === null) {
+        throw 'Fetching latest release of cyclonedx-gomod failed: not found';
+    }
+    return releaseJson.tag_name;
+}
+
 async function install(version) {
     core.info(`Installing cyclonedx-gomod ${version}`);
     const downloadUrl = buildDownloadUrl(version);
@@ -75,10 +85,22 @@ async function install(version) {
 }
 
 async function run() {
+    const httpClient = new http.HttpClient();
+
     try {
-        const binaryPath = await install(input.version.replace(/^v/, ''));
-        
-        let args = ['-output', input.output, '-type', input.type, ];
+        // Make sure Go is in $PATH, throw if it isn't
+        await io.which('go', true);
+
+        let versionToInstall = input.version;
+        if (versionToInstall.toLowerCase() === 'latest') {
+            core.warning('Using version "latest" is not recommended!');
+            versionToInstall = await getLatestReleaseVersion(httpClient);
+        }
+
+        const binaryPath = await install(versionToInstall.replace(/^v/, ''));
+
+        // Assemble cyclonedx-gomod arguments
+        let args = ['-output', input.output, '-type', input.type];
         if (input.includeStdLib) {
             args.push('-std');
         }
