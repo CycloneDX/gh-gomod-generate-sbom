@@ -61,7 +61,7 @@ function buildDownloadUrl(version) {
 async function getLatestReleaseVersion(httpClient) {
     core.info('Determining latest release version of cyclonedx-gomod');
     const responseJson = await httpClient.getJson('https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases/latest');
-    if (releaseJson === null) { // HTTP 404
+    if (responseJson === null) { // HTTP 404
         throw 'Fetching latest release of cyclonedx-gomod failed: not found';
     }
 
