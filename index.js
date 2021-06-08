@@ -85,7 +85,7 @@ async function install(version) {
 }
 
 async function run() {
-    const httpClient = new http.HttpClient();
+    const httpClient = new http.HttpClient('gh-gomod-generate-sbom');
 
     try {
         // Make sure Go is in $PATH, throw if it isn't
