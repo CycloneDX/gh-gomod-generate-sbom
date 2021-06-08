@@ -65,8 +65,8 @@ async function getLatestReleaseVersion(httpClient) {
         throw new Error('Fetching latest release of cyclonedx-gomod failed: not found');
     }
 
-    if (responseJson.status !== 200) {
-        throw new Error(`Unexpected response status: ${responseJson.status}`);
+    if (responseJson.statusCode !== 200) {
+        throw new Error(`Unexpected response status: ${responseJson.statusCode}`);
     }
 
     return responseJson.result.tag_name;
