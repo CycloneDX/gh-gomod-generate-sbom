@@ -2,9 +2,20 @@
 
 GitHub action to generate a CycloneDX SBOM for Go modules.
 
-> This action uses [cyclonedx-gomod](https://github.com/CycloneDX/cyclonedx-gomod) to generate SBOMs. 
+> This action uses [*cyclonedx-gomod*](https://github.com/CycloneDX/cyclonedx-gomod) to generate SBOMs. 
 
 ## Inputs
+
+### `version`
+
+**Required** The version of cyclonedx-gomod to use.
+
+Must either be an [existing semantic version](https://github.com/CycloneDX/cyclonedx-gomod/releases) (e.g. `v0.8.1`, `0.8.1`) or `latest`.
+
+This action supports *cyclonedx-gomod* versions `>= v0.8.1`. Specifying versions below that will cause the workflow to fail.
+
+> Using `latest` is generally not recommended and will produce a warning, as it may fail your workflow 
+> unexpectedly due to breaking changes in newer *cyclonedx-gomod* versions.
 
 ### `include-stdlib`
 
@@ -46,10 +57,6 @@ Resolve module licenses. Default `false`.
 
 Type of the main component. Default `'application'`.
 
-### `version`
-
-**Required** The version of cyclonedx-gomod to use.
-
 ## Example usage
 
 ```yaml
@@ -59,12 +66,12 @@ Type of the main component. Default `'application'`.
     json: true
     output: bom.json
     resolve-licenses: true
-    version: 0.8.1
+    version: v0.8.1
 
 - name: Generate SBOM XML
   uses: CycloneDX/gh-gomod-generate-sbom@main
   with:
     output: bom.xml
     resolve-licenses: true
-    version: 0.8.1
+    version: latest
 ```

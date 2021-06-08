@@ -22,6 +22,7 @@ const http = require('@actions/http-client');
 const io = require('@actions/io');
 const os = require('os');
 const path = require('path');
+const semver = require('semver');
 const toolCache = require('@actions/tool-cache');
 const util = require('util');
 
@@ -101,6 +102,10 @@ async function run() {
         if (versionToInstall.toLowerCase() === 'latest') {
             core.warning('Using version "latest" is not recommended!');
             versionToInstall = await getLatestReleaseVersion(httpClient);
+        } else {
+            if (semver.lt(versionToInstall, 'v0.8.1')) {
+                throw new Error('cyclonedx-gomod versions below v0.8.1 are not supported');
+            }
         }
 
         const binaryPath = await install(versionToInstall.replace(/^v/, ''));
