@@ -12,7 +12,7 @@ GitHub action to generate a CycloneDX SBOM for Go modules.
 
 Must either be an [existing semantic version](https://github.com/CycloneDX/cyclonedx-gomod/releases) (e.g. `v0.8.1`, `0.8.1`) or `latest`.
 
-This action supports *cyclonedx-gomod* versions `>= v0.8.1`. Specifying versions below that will cause the workflow to fail.
+> ⚠ Only versions `>= v0.8.1` are supported. Specifying versions below that will cause the workflow to fail.
 
 > Using `latest` is generally not recommended and will produce a warning, as it may fail your workflow 
 > unexpectedly due to breaking changes in newer *cyclonedx-gomod* versions.
