@@ -65,9 +65,7 @@ async function getLatestReleaseVersion(httpClient) {
     const responseJson = await httpClient.getJson('https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases/latest');
     if (responseJson === null) { // HTTP 404
         throw new Error('Fetching latest release of cyclonedx-gomod failed: not found');
-    }
-
-    if (responseJson.statusCode !== 200) {
+    } else if (responseJson.statusCode !== 200) {
         throw new Error(`Unexpected response status: ${responseJson.statusCode}`);
     }
 
@@ -77,16 +75,14 @@ async function getLatestReleaseVersion(httpClient) {
 async function getReleaseVersionMatchingRange(httpClient, range) {
     core.info(`Determining latest release version of cyclonedx-gomod satisfying "${range}"`);
     const responseJson = await httpClient.getJson('https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases');
-    if (responseJson === null) {
+    if (responseJson === null) { // HTTP 404
         throw new Error('Fetching latest release of cyclonedx-gomod failed: not found');
     } else if (responseJson.statusCode !== 200) {
         throw new Error(`Unexpected response status: ${responseJson.statusCode}`);
     }
 
-    const versions = responseJson.result.map((release) => release.tag_name);
-    core.info(`Versions: ${versions}`);
-    const matched = semver.maxSatisfying(versions, range);
-    core.info(`Matched version: ${matched}`);
+    const matched = semver.maxSatisfying(responseJson.result.map((release) => release.tag_name), range);
+    core.info(`Latest release version matching "${range}" is: ${matched}`);
     return matched;
 }
 
@@ -120,6 +116,10 @@ async function run() {
             core.warning('Using version "latest" is not recommended, please use version ranges instead!');
             versionToInstall = await getLatestReleaseVersion(httpClient);
         } else {
+            if (!semver.validRange(versionToInstall)) {
+                throw new Error('version must be a valid version range, see https://github.com/npm/node-semver#advanced-range-syntax')
+            }
+
             versionToInstall = await getReleaseVersionMatchingRange(httpClient, versionToInstall);
 
             if (semver.lt(versionToInstall, minimumSupportedVersion)) {
