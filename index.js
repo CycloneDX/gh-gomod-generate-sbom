@@ -41,6 +41,7 @@ const input = {
 };
 
 const baseDownloadUrl = 'https://github.com/CycloneDX/cyclonedx-gomod/releases/download';
+const minimumSupportedVersion = 'v0.8.1';
 
 function buildDownloadUrl(version) {
     let fileExtension = "tar.gz";
@@ -64,13 +65,27 @@ async function getLatestReleaseVersion(httpClient) {
     const responseJson = await httpClient.getJson('https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases/latest');
     if (responseJson === null) { // HTTP 404
         throw new Error('Fetching latest release of cyclonedx-gomod failed: not found');
-    }
-
-    if (responseJson.statusCode !== 200) {
+    } else if (responseJson.statusCode !== 200) {
         throw new Error(`Unexpected response status: ${responseJson.statusCode}`);
     }
 
-    return responseJson.result.tag_name;
+    const version = responseJson.result.tag_name;
+    core.info(`Latest version is ${version}`);
+    return version;
+}
+
+async function getReleaseVersionMatchingRange(httpClient, range) {
+    core.info(`Determining latest release version of cyclonedx-gomod satisfying "${range}"`);
+    const responseJson = await httpClient.getJson('https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases');
+    if (responseJson === null) { // HTTP 404
+        throw new Error('Fetching latest release of cyclonedx-gomod failed: not found');
+    } else if (responseJson.statusCode !== 200) {
+        throw new Error(`Unexpected response status: ${responseJson.statusCode}`);
+    }
+
+    const matched = semver.maxSatisfying(responseJson.result.map((release) => release.tag_name), range);
+    core.info(`Latest release version matching "${range}" is: ${matched}`);
+    return matched;
 }
 
 async function install(version) {
@@ -100,11 +115,17 @@ async function run() {
 
         let versionToInstall = input.version;
         if (versionToInstall.toLowerCase() === 'latest') {
-            core.warning('Using version "latest" is not recommended!');
+            core.warning('Using version "latest" is not recommended, please use version ranges instead!');
             versionToInstall = await getLatestReleaseVersion(httpClient);
         } else {
-            if (semver.lt(versionToInstall, 'v0.8.1')) {
-                throw new Error('cyclonedx-gomod versions below v0.8.1 are not supported');
+            if (!semver.validRange(versionToInstall)) {
+                throw new Error('version must be a valid version range, see https://github.com/npm/node-semver#advanced-range-syntax')
+            }
+
+            versionToInstall = await getReleaseVersionMatchingRange(httpClient, versionToInstall);
+
+            if (semver.lt(versionToInstall, minimumSupportedVersion)) {
+                throw new Error(`cyclonedx-gomod versions below ${minimumSupportedVersion} are not supported`);
             }
         }
 

@@ -43,7 +43,7 @@ inputs:
     default: application
     required: false
   version:
-    description: The version of cyclonedx-gomod to use
+    description: The version of cyclonedx-gomod to use. Can be a version range, in which case the latest version matching the range is chosen
     required: true
 runs:
   using: 'node12'
