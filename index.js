@@ -69,7 +69,9 @@ async function getLatestReleaseVersion(httpClient) {
         throw new Error(`Unexpected response status: ${responseJson.statusCode}`);
     }
 
-    return responseJson.result.tag_name;
+    const version = responseJson.result.tag_name;
+    core.info(`Latest version is ${version}`);
+    return version;
 }
 
 async function getReleaseVersionMatchingRange(httpClient, range) {
