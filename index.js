@@ -84,7 +84,10 @@ async function getReleaseVersionMatchingRange(httpClient, range) {
     }
 
     const versions = responseJson.result.map((release) => release.tag_name);
-    return semver.maxSatisfying(versions, range);
+    core.info(`Versions: ${versions}`);
+    const matched = semver.maxSatisfying(versions, range);
+    core.info(`Matched version: ${matched}`);
+    return matched;
 }
 
 async function install(version) {
