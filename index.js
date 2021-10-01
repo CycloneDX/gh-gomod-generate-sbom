@@ -104,7 +104,7 @@ async function install(version) {
     }
 
     core.info(`Adding ${installDir} to \$PATH`)
-    core.addPath(install);
+    core.addPath(installDir);
 
     return path.join(installDir, 'cyclonedx-gomod');
 }
