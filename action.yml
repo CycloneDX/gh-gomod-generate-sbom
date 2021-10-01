@@ -5,13 +5,15 @@ inputs:
   args:
     description: |
       Arguments to pass to cyclonedx-gomod.
-      When not set, cyclonedx-gomod will only be downloaded, but not executed.
+      Please refer to the cyclonedx-gomod documentation for usage instructions.
+      When not set, *cyclonedx-gomod* will only be downloaded, but not executed.
+      It'll be made available via `$PATH` and can be used by later steps of the workflow.
     required: false
   version:
     description: |
       The version of cyclonedx-gomod to use. 
       Can be a version range, in which case the latest version matching the range is chosen.
-      Minimum allowed version is v1.0.0.
+      Minimum allowed version is v1.0.0. Must either be an existing semantic version (e.g. `v1.0.0`, `1.0.0`) or a version range.
     required: true
 runs:
   using: 'node12'
