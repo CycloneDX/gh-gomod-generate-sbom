@@ -8,71 +8,33 @@ GitHub action to generate a CycloneDX SBOM for Go modules.
 
 ### `version`
 
-**Required** The version of cyclonedx-gomod to use. Can be a version range, in which case the latest version matching the range is chosen.
+**Required**. The version of *cyclonedx-gomod* to use.  
+Can be a version range, in which case the latest version matching the range is chosen.  
+Minimum allowed version is v1.0.0. Must either be an [existing semantic version](https://github.com/CycloneDX/cyclonedx-gomod/releases) 
+(e.g. `v1.0.0`, `1.0.0`) or a [version range](https://github.com/npm/node-semver#ranges).
 
-Must either be an [existing semantic version](https://github.com/CycloneDX/cyclonedx-gomod/releases) (e.g. `v0.8.1`, `0.8.1`), [version range](https://github.com/npm/node-semver#ranges) or `latest`.
+### `args`
 
-> ⚠ Only versions `>= v0.8.1` are supported. Specifying versions below that will cause the workflow to fail.
-
-> Using `latest` is generally not recommended and will produce a warning, as it may fail your workflow 
-> unexpectedly due to breaking changes in newer *cyclonedx-gomod* versions.
-> As of v0.3.0, version ranges are supported. Instead of `latest`, consider using `^v0`, `^v0.8` or similar instead.
-
-### `include-stdlib`
-
-Include Go standard library as component and dependency of the module. Default `false`.
-
-### `include-test`
-
-Include test dependencies. Default `false`.
-
-### `json`
-
-Output in JSON format. Default `false`.
-
-### `module`
-
-Path to Go module. Default `'.'`.
-
-### `omit-serial-number`
-
-Omit serial number. Default `false`.
-
-### `omit-version-prefix`
-
-Omit "v" version prefix. Default `false`.
-
-### `output`
-
-Output path. Default `'-'` (stdout).
-
-### `reproducible`
-
-Make the SBOM reproducible by omitting dynamic content. Default `false`.
-
-### `resolve-licenses`
-
-Resolve module licenses. Default `false`.
-
-### `type`
-
-Type of the main component. Default `'application'`.
+**Optional**. Arguments to pass to *cyclonedx-gomod*.  
+Please refer to the [*cyclonedx-gomod* documentation](https://github.com/CycloneDX/cyclonedx-gomod#usage) for usage instructions.  
+When not set, *cyclonedx-gomod* will only be downloaded, but not executed.  
+It'll be made available via `$PATH` and can be used by later steps of the workflow.
 
 ## Example usage
 
 ```yaml
-- name: Generate SBOM JSON
+# Download and invoke cyclonedx-gomod in a single step
+- name: Generate SBOM
   uses: CycloneDX/gh-gomod-generate-sbom@v0.3.0
   with:
-    json: true
-    output: bom.json
-    resolve-licenses: true
-    version: ^v0
+    version: v1
+    args: mod -licenses -json -output bom.json
 
-- name: Generate SBOM XML
+# Just download cyclonedx-gomod and call it in a later step
+- name: Download cyclonedx-gomod
   uses: CycloneDX/gh-gomod-generate-sbom@v0.3.0
   with:
-    output: bom.xml
-    resolve-licenses: true
-    version: latest
+    version: v1.0.0
+- name: Generate SBOM
+  run: cyclonedx-gomod app -licenses -files -output bom.xml -main cmd/acme-app
 ```

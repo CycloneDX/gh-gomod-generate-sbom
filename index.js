@@ -13,35 +13,24 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-// Copyright (c) Niklas Düster. All Rights Reserved.
+// Copyright (c) OWASP Foundation. All Rights Reserved.
 
 const core = require('@actions/core');
 const exec = require('@actions/exec');
-const fs = require('fs');
 const http = require('@actions/http-client');
 const io = require('@actions/io');
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
 const toolCache = require('@actions/tool-cache');
-const util = require('util');
 
 const input = {
-    includeStdLib: core.getBooleanInput('include-stdlib'),
-    includeTest: core.getBooleanInput('include-test'),
-    json: core.getBooleanInput('json'),
-    module: core.getInput('module'),
-    omitSerialNumber: core.getBooleanInput('omit-serial-number'),
-    omitVersionPrefix: core.getBooleanInput('omit-version-prefix'),
-    output: core.getInput('output') || '-',
-    reproducible: core.getBooleanInput('reproducible'),
-    resolveLicenses: core.getBooleanInput('resolve-licenses'),
-    type: core.getInput('type') || 'application',
+    args: core.getInput('args'),
     version: core.getInput('version'),
 };
 
 const baseDownloadUrl = 'https://github.com/CycloneDX/cyclonedx-gomod/releases/download';
-const minimumSupportedVersion = 'v0.8.1';
+const minimumSupportedVersion = 'v1.0.0';
 
 function buildDownloadUrl(version) {
     let fileExtension = "tar.gz";
@@ -52,26 +41,21 @@ function buildDownloadUrl(version) {
         fileExtension = 'zip';
     }
 
-    let architecture = os.arch()
-    if (architecture === 'ia32' || architecture === 'x32') {
-        architecture = 'x86';
+    let architecture = '';
+    switch (os.arch()) {
+        case 'x64':
+            architecture = 'amd64';
+            break;
+        case 'ia32':
+        case 'x32':
+            architecture = '386';
+            break;
+        default:
+            architecture = os.arch();
+            break;
     }
 
     return `${baseDownloadUrl}/v${version}/cyclonedx-gomod_${version}_${platform}_${architecture}.${fileExtension}`;
-}
-
-async function getLatestReleaseVersion(httpClient) {
-    core.info('Determining latest release version of cyclonedx-gomod');
-    const responseJson = await httpClient.getJson('https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases/latest');
-    if (responseJson === null) { // HTTP 404
-        throw new Error('Fetching latest release of cyclonedx-gomod failed: not found');
-    } else if (responseJson.statusCode !== 200) {
-        throw new Error(`Unexpected response status: ${responseJson.statusCode}`);
-    }
-
-    const version = responseJson.result.tag_name;
-    core.info(`Latest version is ${version}`);
-    return version;
 }
 
 async function getReleaseVersionMatchingRange(httpClient, range) {
@@ -98,10 +82,13 @@ async function install(version) {
     core.info('Extracting archive');
     let installDir = "";
     if (downloadUrl.endsWith('.zip')) {
-        installDir = await toolCache.extractZip(archivePath, process.env.HOME);
+        installDir = await toolCache.extractZip(archivePath);
     } else {
-        installDir = await toolCache.extractTar(archivePath, process.env.HOME);
+        installDir = await toolCache.extractTar(archivePath);
     }
+
+    core.info(`Adding ${installDir} to \$PATH`)
+    core.addPath(installDir);
 
     return path.join(installDir, 'cyclonedx-gomod');
 }
@@ -114,56 +101,20 @@ async function run() {
         await io.which('go', true);
 
         let versionToInstall = input.version;
-        if (versionToInstall.toLowerCase() === 'latest') {
-            core.warning('Using version "latest" is not recommended, please use version ranges instead!');
-            versionToInstall = await getLatestReleaseVersion(httpClient);
-        } else {
-            if (!semver.validRange(versionToInstall)) {
-                throw new Error('version must be a valid version range, see https://github.com/npm/node-semver#advanced-range-syntax')
-            }
-
-            versionToInstall = await getReleaseVersionMatchingRange(httpClient, versionToInstall);
-
-            if (semver.lt(versionToInstall, minimumSupportedVersion)) {
-                throw new Error(`cyclonedx-gomod versions below ${minimumSupportedVersion} are not supported`);
-            }
+        if (!semver.validRange(versionToInstall)) {
+            throw new Error('version must be a valid version range, see https://github.com/npm/node-semver#advanced-range-syntax')
+        }
+        versionToInstall = await getReleaseVersionMatchingRange(httpClient, versionToInstall);
+        if (semver.lt(versionToInstall, minimumSupportedVersion)) {
+            throw new Error(`cyclonedx-gomod versions below ${minimumSupportedVersion} are not supported`);
         }
 
         const binaryPath = await install(versionToInstall.replace(/^v/, ''));
 
-        // Assemble cyclonedx-gomod arguments
-        let args = ['-output', input.output, '-type', input.type];
-        if (input.includeStdLib) {
-            args.push('-std');
-        }
-        if (input.includeTest) {
-            args.push('-test');
-        }
-        if (input.json) {
-            args.push('-json');
-        }
-        if (input.module !== '') {
-            args.push('-module', input.module);
-        }
-        if (input.omitSerialNumber) {
-            args.push('-noserial');
-        }
-        if (input.omitVersionPrefix) {
-            args.push('-novprefix');
-        }
-        if (input.reproducible) {
-            args.push('-reproducible');
-        }
-        if (input.resolveLicenses) {
-            args.push('-licenses');
-        }
-
-        await exec.exec(binaryPath, args);
-
-        if (input.output !== '-') {
-            const readFile = util.promisify(fs.readFile);
-            const sbomContent = await readFile(input.output);
-            core.info(`SBOM content:\n${sbomContent.toString('utf-8')}`);
+        if (input.args != '') {
+            await exec.exec(binaryPath, input.args.split(/\s+/));
+        } else {
+            core.info('no arguments configured, will not execute cyclonedx-gomod')
         }
     } catch (error) {
         core.setFailed(error.message);
