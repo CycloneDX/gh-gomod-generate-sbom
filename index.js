@@ -135,7 +135,7 @@ async function run() {
         const binaryPath = await install(versionToInstall.replace(/^v/, ''));
 
         if (input.args != '') {
-            await exec.exec(binaryPath, input.args.split(/(\s+)/));
+            await exec.exec(binaryPath, input.args.split(/\s+/));
         } else {
             core.info('no arguments configured, will not execute cyclonedx-gomod')
         }
