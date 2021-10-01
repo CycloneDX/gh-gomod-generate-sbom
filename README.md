@@ -25,14 +25,14 @@ It'll be made available via `$PATH` and can be used by later steps of the workfl
 ```yaml
 # Download and invoke cyclonedx-gomod in a single step
 - name: Generate SBOM
-  uses: CycloneDX/gh-gomod-generate-sbom@v0.3.0
+  uses: CycloneDX/gh-gomod-generate-sbom@v1.0.0
   with:
     version: v1
     args: mod -licenses -json -output bom.json
 
 # Just download cyclonedx-gomod and call it in a later step
 - name: Download cyclonedx-gomod
-  uses: CycloneDX/gh-gomod-generate-sbom@v0.3.0
+  uses: CycloneDX/gh-gomod-generate-sbom@v1.0.0
   with:
     version: v1.0.0
 - name: Generate SBOM
