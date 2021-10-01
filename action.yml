@@ -2,48 +2,16 @@ name: CycloneDX GoMod Generate SBOM
 author: Niklas Düster
 description: Github action to generate a CycloneDX SBOM for Go modules
 inputs:
-  include-stdlib:
-    description: Include Go standard library as component and dependency of the module
-    default: 'false'
-    required: false
-  include-test:
-    description: Include test dependencies
-    default: 'false'
-    required: false
-  json:
-    description: Output in JSON format
-    default: 'false'
-    required: false
-  module:
-    description: Path to Go module
-    default: '.'
-    required: false
-  omit-serial-number:
-    description: Omit serial number
-    default: 'false'
-    required: false
-  omit-version-prefix:
-    description: Omit "v" version prefix
-    default: 'false'
-    required: false
-  output:
-    description: Output path
-    default: '-'
-    required: false
-  reproducible:
-    description: Make the SBOM reproducible by omitting dynamic content
-    default: 'false'
-    required: false
-  resolve-licenses:
-    description: Resolve module licenses
-    default: 'false'
-    required: false
-  type:
-    description: Type of the main component
-    default: application
+  args:
+    description: |
+      Arguments to pass to cyclonedx-gomod.
+      When not set, cyclonedx-gomod will only be downloaded, but not executed.
     required: false
   version:
-    description: The version of cyclonedx-gomod to use. Can be a version range, in which case the latest version matching the range is chosen
+    description: |
+      The version of cyclonedx-gomod to use. 
+      Can be a version range, in which case the latest version matching the range is chosen.
+      Minimum allowed version is v1.0.0.
     required: true
 runs:
   using: 'node12'
