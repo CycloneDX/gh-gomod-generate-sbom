@@ -17,14 +17,12 @@
 
 const core = require('@actions/core');
 const exec = require('@actions/exec');
-const fs = require('fs');
 const http = require('@actions/http-client');
 const io = require('@actions/io');
 const os = require('os');
 const path = require('path');
 const semver = require('semver');
 const toolCache = require('@actions/tool-cache');
-const util = require('util');
 
 const input = {
     args: core.getInput('args'),
