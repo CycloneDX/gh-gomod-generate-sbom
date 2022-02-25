@@ -60,7 +60,12 @@ function buildDownloadUrl(version) {
 
 async function getReleaseVersionMatchingRange(httpClient, range) {
     core.info(`Determining latest release version of cyclonedx-gomod satisfying "${range}"`);
-    const responseJson = await httpClient.getJson('https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases');
+    const responseJson = await httpClient.getJson(
+      'https://api.github.com/repos/CycloneDX/cyclonedx-gomod/releases',
+      process.env.GITHUB_TOKEN
+        ? { Authorization: process.env.GITHUB_TOKEN, ...{} }
+        : {}
+    );
     if (responseJson === null) { // HTTP 404
         throw new Error('Fetching latest release of cyclonedx-gomod failed: not found');
     } else if (responseJson.statusCode !== 200) {
