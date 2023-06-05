@@ -16,5 +16,5 @@ inputs:
       Minimum allowed version is v1.0.0. Must either be an existing semantic version (e.g. v1.0.0, 1.0.0) or a version range.
     required: true
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'index.js'
