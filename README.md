@@ -25,16 +25,16 @@ It'll be made available via `$PATH` and can be used by later steps of the workfl
 ```yaml
 # Download and invoke cyclonedx-gomod in a single step
 - name: Generate SBOM
-  uses: CycloneDX/gh-gomod-generate-sbom@v1
+  uses: CycloneDX/gh-gomod-generate-sbom@v2
   with:
     version: v1
     args: mod -licenses -json -output bom.json
 
 # Just download cyclonedx-gomod and call it in a later step
 - name: Download cyclonedx-gomod
-  uses: CycloneDX/gh-gomod-generate-sbom@v1
+  uses: CycloneDX/gh-gomod-generate-sbom@v2
   with:
     version: v1
 - name: Generate SBOM
-  run: cyclonedx-gomod app -licenses -files -output bom.xml -main cmd/acme-app
+  run: cyclonedx-gomod app -licenses -output bom.xml -main cmd/acme-app
 ```
